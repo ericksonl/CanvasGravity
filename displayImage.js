@@ -1,63 +1,76 @@
+import Ball from "./balls.js"
 import GenericObject from "./genericObject.js"
 
 const canvas = document.querySelector('canvas')
-const c = canvas.getContext('2d')
+const ctx = canvas.getContext('2d')
 
+let balls = []
 let genericObjects = []
 
 canvas.width = innerWidth
 canvas.height = innerHeight
 
-const mouse = {
-  x: innerWidth / 2,
-  y: innerHeight / 2
-}
-
-const colors = ['#2185C5', '#7ECEFD', '#FFF6E5', '#FF7F66']
-
-// Event Listeners
-addEventListener('mousemove', (event) => {
-  mouse.x = event.clientX
-  mouse.y = event.clientY
-})
-
-addEventListener('resize', () => {
-  canvas.width = innerWidth
-  canvas.height = innerHeight
-
-  init()
-})
+const colors = ['#e81416', '#ffa500', '#faeb36', '#79c314', '#487de7', '#4b369d', '#70369d']
+const gravity = 0.5
 
 function init() {
+  balls = [
+    new Ball({
+      x: 400,
+      y: 200,
+      velY: 0,
+      velX: 0,
+      radius: 30,
+      mass: 16,
+      color: colors[3]
+    }),
+    new Ball({
+      x: 200,
+      y: 300,
+      velY: 0,
+      velX: 0,
+      radius: 20,
+      mass: 4,
+      color: colors[0]
+    })
+  ]
+
   genericObjects = [
-      new GenericObject({
-          x: 50,
-          y: 50,
-          radius: 20,
-          color: colors[0]
-      })
+    new GenericObject({
+      x: 400,
+      y: 400,
+      radius: 300,
+      color: '#ffffff'
+    })
   ]
 }
 //setTimeout(init(), 5);
 init()
 
-// Animation Loop
-
-let i = 0
 
 function animate() {
   requestAnimationFrame(animate)
-  c.fillStyle = 'white'
-  c.fillRect(0, 0, canvas.width, canvas.height)
-  
-  genericObjects.forEach((genericObject) => {  
+  ctx.fillStyle = 'black'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  genericObjects.forEach((genericObject) => {
     genericObject.update()
   })
 
-  genericObjects[0].position.y += 1
-  genericObjects[0].radius += 1
-  genericObjects[0].color = colors[i]
+  balls.forEach((ball) => {
+    ball.update()
+    
+    ball.velY += gravity
 
+    ball.position.y += ball.velY
+
+    //If ball hits bottom of Canvas
+    if (ball.position.y + ball.radius > (genericObjects[0].position.y + genericObjects[0].radius)) {
+      //Ball begins going up
+      ball.position.y = genericObjects[0].position.y + genericObjects[0].radius - ball.radius
+      ball.velY = -ball.velY + (ball.mass * gravity)
+    }
+  })
 }
 
 animate()

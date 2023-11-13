@@ -1,15 +1,18 @@
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
-class GenericObject {
+class Ball {
     //x y are position
-    constructor({x, y, radius, color}) {
+    constructor({x, y, velX, velY, radius, color, mass}) {
         this.position = {
             x: x,
             y: y
         }
+        this.velX = velX
+        this.velY = velY
         this.radius = radius
-        this.color = color   
+        this.mass = mass
+        this.color = color        
     }
 
     draw() {
@@ -25,4 +28,4 @@ class GenericObject {
     }
 }
 
-export default GenericObject
+export default Ball
