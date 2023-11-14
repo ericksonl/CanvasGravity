@@ -8,10 +8,11 @@ class Ball {
             x: x,
             y: y
         }
-        this.velX = velX
-        this.velY = velY
+        this.velocity = {
+            x: velX,
+            y: velY
+        }
         this.radius = radius
-        this.mass = mass
         this.color = color        
     }
 

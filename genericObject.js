@@ -2,7 +2,6 @@ const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
 class GenericObject {
-    //x y are position
     constructor({x, y, radius, color}) {
         this.position = {
             x: x,

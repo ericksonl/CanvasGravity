@@ -1,76 +1,97 @@
-import Ball from "./balls.js"
-import GenericObject from "./genericObject.js"
+import Ball from "./balls.js";
+import GenericObject from "./genericObject.js";
 
-const canvas = document.querySelector('canvas')
-const ctx = canvas.getContext('2d')
+const canvas = document.querySelector('canvas');
+const ctx = canvas.getContext('2d');
 
-let balls = []
-let genericObjects = []
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 
-canvas.width = innerWidth
-canvas.height = innerHeight
+const colors = ['#e81416', '#ffa500', '#faeb36', '#79c314', '#487de7', '#4b369d', '#70369d'];
+const ballRadius = 40; //Radius for all balls
 
-const colors = ['#e81416', '#ffa500', '#faeb36', '#79c314', '#487de7', '#4b369d', '#70369d']
-const gravity = 0.5
+let balls = [];
 
-function init() {
-  balls = [
-    new Ball({
-      x: 400,
-      y: 200,
-      velY: 0,
+let innerCircle = new GenericObject({
+  x: canvas.width / 2,
+  y: canvas.height / 2,
+  radius: 300,
+  color: '#ffffff'
+});
+
+//Function to spawn new ball at click inside inner circle
+function getMousePosition(event) {
+  let mouseX = event.clientX;
+  let mouseY = event.clientY;
+
+  //Calculate distance between mouse click and center of inner circle
+  let distance = Math.sqrt((mouseX - innerCircle.position.x) ** 2 + (mouseY - innerCircle.position.y) ** 2) + ballRadius;
+
+  //If clicked inside circle, spawn a new ball
+  if (distance <= innerCircle.radius) {
+    balls.push(new Ball({
+      x: mouseX,
+      y: mouseY,
       velX: 0,
-      radius: 30,
-      mass: 16,
-      color: colors[3]
-    }),
-    new Ball({
-      x: 200,
-      y: 300,
-      velY: 0,
-      velX: 0,
-      radius: 20,
-      mass: 4,
-      color: colors[0]
-    })
-  ]
-
-  genericObjects = [
-    new GenericObject({
-      x: 400,
-      y: 400,
-      radius: 300,
-      color: '#ffffff'
-    })
-  ]
+      velY: 6,
+      radius: ballRadius,
+      color: colors[Math.floor(Math.random() * colors.length)]
+    }));
+  }
 }
-//setTimeout(init(), 5);
-init()
 
+canvas.addEventListener("mousedown", function (e) {
+  getMousePosition(e);
+});
 
 function animate() {
-  requestAnimationFrame(animate)
-  ctx.fillStyle = 'black'
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  requestAnimationFrame(animate);
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  genericObjects.forEach((genericObject) => {
-    genericObject.update()
-  })
+  innerCircle.update();
 
   balls.forEach((ball) => {
-    ball.update()
-    
-    ball.velY += gravity
+    ball.update();
 
-    ball.position.y += ball.velY
+    //Calculate distance between ball and center of inner circle
+    let distance = Math.sqrt((ball.position.x - innerCircle.position.x) ** 2 + (ball.position.y - innerCircle.position.y) ** 2) + ball.radius;
 
-    //If ball hits bottom of Canvas
-    if (ball.position.y + ball.radius > (genericObjects[0].position.y + genericObjects[0].radius)) {
-      //Ball begins going up
-      ball.position.y = genericObjects[0].position.y + genericObjects[0].radius - ball.radius
-      ball.velY = -ball.velY + (ball.mass * gravity)
+    //Check for collision with inner circle
+    if (distance >= innerCircle.radius) {
+
+      //Filter color array to exclude current ball's color
+      const filteredArray = colors.filter(element => element !== ball.color);
+
+      //Randomly choose color from filtered color array
+      const randomIndex = Math.floor(Math.random() * filteredArray.length);
+
+      //Change ball's color
+      ball.color = filteredArray[randomIndex];
+
+      //Find collision angle
+      const angle = Math.atan2(ball.position.y, ball.position.x);
+
+      //Find angle perpendicular to collision angle
+      const normalAngle = angle + Math.PI / 2;
+
+      //Create new velocity for x and y
+      const newVelX = ball.velocity.x * Math.cos(2 * normalAngle) - ball.velocity.y * Math.sin(2 * normalAngle);
+      const newVelY = ball.velocity.x * Math.sin(2 * normalAngle) + ball.velocity.y * Math.cos(2 * normalAngle);
+
+      ball.velocity.x = newVelX;
+      ball.velocity.y = newVelY;
+
+      //Move ball away from collision point
+      ball.position.y += ball.velocity.y;
+      ball.position.x += ball.velocity.x;
+
+    } else {
+      //If no collision, continue moving ball
+      ball.position.y += ball.velocity.y;
+      ball.position.x += ball.velocity.x;
     }
-  })
+  });
 }
 
-animate()
+animate();
