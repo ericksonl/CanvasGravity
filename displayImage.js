@@ -54,8 +54,10 @@ function animate() {
   balls.forEach((ball) => {
     ball.update();
 
+    const nextX = ball.position.x + ball.velocity.x;
+    const nextY = ball.position.y + ball.velocity.y;
     //Calculate distance between ball and center of inner circle
-    let distance = Math.sqrt((ball.position.x - innerCircle.position.x) ** 2 + (ball.position.y - innerCircle.position.y) ** 2) + ball.radius;
+    let distance = Math.sqrt((nextX - innerCircle.position.x) ** 2 + (nextY - innerCircle.position.y) ** 2) + ball.radius;
 
     //Check for collision with inner circle
     if (distance >= innerCircle.radius) {
@@ -70,21 +72,19 @@ function animate() {
       ball.color = filteredArray[randomIndex];
 
       //Find collision angle
-      const angle = Math.atan2(ball.position.y, ball.position.x);
+      const angle = (Math.atan2(ball.position.y, ball.position.x)) + (Math.PI / 2)
+      console.log(ball.position.y, ball.position.x, angle)
 
-      //Find angle perpendicular to collision angle
-      const normalAngle = angle + Math.PI / 2;
+      // //Create new velocity for x and y
+      const newVelX = ball.velocity.x * Math.cos(2 * angle) - ball.velocity.y * Math.sin(2 * angle);
+      const newVelY = ball.velocity.x * Math.sin(2 * angle) + ball.velocity.y * Math.cos(2 * angle);
 
-      //Create new velocity for x and y
-      const newVelX = ball.velocity.x * Math.cos(2 * normalAngle) - ball.velocity.y * Math.sin(2 * normalAngle);
-      const newVelY = ball.velocity.x * Math.sin(2 * normalAngle) + ball.velocity.y * Math.cos(2 * normalAngle);
+      ball.velocity.x = newVelX
+      ball.velocity.y = newVelY
 
-      ball.velocity.x = newVelX;
-      ball.velocity.y = newVelY;
-
-      //Move ball away from collision point
-      ball.position.y += ball.velocity.y;
+      // //Move ball away from collision point
       ball.position.x += ball.velocity.x;
+      ball.position.y += ball.velocity.y;
 
     } else {
       //If no collision, continue moving ball

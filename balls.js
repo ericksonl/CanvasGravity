@@ -2,7 +2,6 @@ const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
 class Ball {
-    //x y are position
     constructor({x, y, velX, velY, radius, color, mass}) {
         this.position = {
             x: x,
